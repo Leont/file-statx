@@ -1,0 +1,4 @@
+/.build/
+/File-StatX-*/
+/File-StatX-*.tar.gz
+!/.gitignore
