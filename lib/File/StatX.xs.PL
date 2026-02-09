@@ -21,21 +21,30 @@ TYPEMAP
 
 BOOT:
 	HV* stash = gv_stashpvs("File::StatX", GV_ADD | GV_ADDMULTI);
+	AV* exports = get_av("File::StatX::EXPORT_OK", GV_ADD);
+
 END
 
-my @constants = qw/MODE NLINK UID GID ATIME MTIME CTIME INO SIZE BLOCKS BASIC_STATS BTIME ALL/;
-
+my @constants = qw/
+	STATX_MODE STATX_NLINK STATX_UID STATX_GID STATX_ATIME STATX_MTIME STATX_CTIME
+	STATX_INO STATX_SIZE STATX_BLOCKS STATX_BASIC_STATS STATX_BTIME STATX_ALL
+	AT_NO_AUTOMOUNT AT_SYMLINK_NOFOLLOW AT_STATX_SYNC_AS_STAT AT_STATX_FORCE_SYNC AT_STATX_DONT_SYNC
+/;
 for my $constant (@constants) {
-	printf $fh qq/\tnewCONSTSUB(stash, "STATX_$constant", newSVuv(STATX_$constant));\n/;
+	print $fh qq/\tav_push(exports, newSVpvs("$constant"));\n\n/;
+	print $fh qq/\tnewCONSTSUB(stash, "$constant", newSVuv($constant));\n/;
 }
 
 my @constants_maybe = qw/MNT_ID DIOALIGN MNT_ID_UNIQUE SUBVOL WRITE_ATOMIC DIO_READ_ALIGN/;
-
 for my $constant (@constants_maybe) {
-	printf $fh <<"END";
+	print $fh <<"END";
+	av_push(exports, newSVpvs("STATX_$constant"));
 #ifdef STATX_$constant
 	newCONSTSUB(stash, "STATX_$constant", newSVuv(STATX_$constant));
+#else
+	newCONSTSUB(stash, "STATX_$constant", newSVuv(0));
 #endif
+
 END
 }
 
