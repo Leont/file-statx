@@ -11,12 +11,23 @@ print $fh <<'END';
 
 typedef struct statx* File__StatX;
 
+#define statx_new(class) safecalloc(1, sizeof(struct statx))
+#define statx__do_statx statx
+#define statx__do_fstatx(fd, flags, mask, self) statx(fd, "", flags | AT_EMPTY_PATH, mask, self)
+#define statx_mask(self) (self->stx_mask)
+
 #define STATX_TYPEMODE (STATX_TYPE | STATX_MODE)
 
-MODULE = File::StatX				PACKAGE = File::StatX
+typedef int SysRet;
+typedef int FileDescriptor;
+typedef int DirDescriptor;
+
+MODULE = File::StatX				PACKAGE = File::StatX		PREFIX = statx_
 
 TYPEMAP: <<TYPEMAP
 	File::StatX T_OPAQUEOBJ
+	FileDescriptor  T_FILE_DESCRIPTOR
+	DirDescriptor T_DIR_DESCRIPTOR
 TYPEMAP
 
 BOOT:
@@ -51,18 +62,13 @@ END
 print $fh <<'END';
 
 
-File::StatX new(class)
-CODE:
-	RETVAL = safecalloc(1, sizeof(struct statx));
-OUTPUT:
-	RETVAL
+File::StatX statx_new(class)
 
-SV* mask(File::StatX self)
-CODE:
-	RETVAL = newSVuv(self->stx_mask);
-OUTPUT:
-	RETVAL
+SysRet statx__do_statx(DirDescriptor dir, const char* path, int flags, unsigned mask, File::StatX self)
 
+SysRet statx__do_fstatx(FileDescriptor fd, int flags, unsigned mask, File::StatX self)
+
+UV statx_mask(File::StatX self)
 
 END
 

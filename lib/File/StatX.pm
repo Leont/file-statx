@@ -7,9 +7,69 @@ use XSLoader;
 
 XSLoader::load(__PACKAGE__, __PACKAGE__->VERSION);
 
+use Exporter 'import';
+our @EXPORT_OK;
+push @EXPORT_OK, qw/statx fstatx statxat/;
+our %EXPORT_TAGS = (
+	all   => \@EXPORT_OK,
+	funcs => [qw/statx fstatx statxat/],
+	masks => [ grep /^STATX_/, @EXPORT_OK ],
+	at    => [ grep /^AT_/, @EXPORT_OK ],
+);
+
+use Carp 'croak';
+
+sub statx {
+	my ($path, $flags, $mask) = @_;
+	my $result = File::StatX->new;
+	_do_statx(undef, $path, $flags, $mask, $result) or croak "Could not statx: $!";
+	return $result;
+}
+
+sub fstatx {
+	my ($fh, $flags, $mask) = @_;
+	my $result = File::StatX->new;
+	_do_fstatx($fh, $flags, $mask, $result) or croak "Could not statx: $!";
+	return $result;
+}
+
+sub statxat {
+	my ($dir, $path, $flags, $mask) = @_;
+	my $result = File::StatX->new;
+	_do_statx($dir, $path, $flags, $mask, $result) or croak "Could not statx: $!";
+	return $result;
+}
+
 1;
 
 # ABSTRACT: StatX for Perl
+
+=head1 SYNOPSIS
+
+ use File::StatX 'statx', ':masks';
+
+ my $stat = statx("filename", 0, STATX_BASIC_STATS);
+ say "File size is ", $stat->size;
+
+=head1 DESCRIPTION
+
+=head1 FUNCTIONS
+
+=head2 statx
+
+ statx($path, $flags, $mask)
+
+This will stat C<$path>. C<$flags> and C<$mask> are bitmask containing any of the L<flag/Flags> and L<mask|/Masks> values documented below.
+
+=head2 statxat
+
+ statx($dir, $path, $flags, $mask)
+
+This will stat C<$path>, using dirhandle C<$dir> as reference if C<$path> is a relative path. C<$flags> and C<$mask> are bitmask containing any of the flag and mask values documented below.
+
+=head2 fstatx
+
+This will stat the file behind filehandle C<$fh>. C<$flags> and C<$mask> are bitmask containing any of the flag and mask values documented below.
 
 =head1 METHODS
 
