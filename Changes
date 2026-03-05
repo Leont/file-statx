@@ -1,6 +1,7 @@
 Revision history for File-StatX
 
 {{$NEXT}}
+          - Define mXPUSHp on perl <5.38
 
 0.003     2026-02-26 18:47:02+01:00 Europe/Brussels
           - Various documentation fixes
