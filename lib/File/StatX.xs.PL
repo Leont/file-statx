@@ -1,5 +1,7 @@
-my $output_name = shift;
+use strict;
+use warnings;
 
+my $output_name = shift;
 open my $fh, '>', $output_name;
 
 print $fh <<'END';
