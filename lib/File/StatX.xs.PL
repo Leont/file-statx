@@ -160,7 +160,7 @@ for my $key (sort @attributes) {
 	print $fh <<"END";
 SV* $key(File::StatX self)
 CODE:
-#ifdef STATX_\U$key\E
+#ifdef STATX_ATTR_\U$key\E
 	if (self->stx_attributes_mask & STATX_ATTR_\U$key\E)
 		RETVAL = newSVbool(self->stx_attributes & STATX_ATTR_\U$key\E);
 	else
