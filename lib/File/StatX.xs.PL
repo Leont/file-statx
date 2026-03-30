@@ -43,14 +43,14 @@ BOOT:
 
 END
 
-my @constants = qw/
-	STATX_MODE STATX_NLINK STATX_UID STATX_GID STATX_ATIME STATX_MTIME STATX_CTIME
-	STATX_INO STATX_SIZE STATX_BLOCKS STATX_BASIC_STATS STATX_BTIME STATX_ALL
-	AT_NO_AUTOMOUNT AT_SYMLINK_NOFOLLOW AT_STATX_SYNC_AS_STAT AT_STATX_FORCE_SYNC AT_STATX_DONT_SYNC
-/;
-for my $constant (@constants) {
-	print $fh qq/\tav_push(exports, newSVpvs("$constant"));\n\n/;
-	print $fh qq/\tnewCONSTSUB(stash, "$constant", newSVuv($constant));\n/;
+my @stat_constants = map { "STATX_$_" } qw/MODE NLINK UID GID ATIME MTIME CTIME INO SIZE BLOCKS BASIC_STATS BTIME ALL/;
+my @at_constants = map { "AT_$_" } qw/NO_AUTOMOUNT SYMLINK_NOFOLLOW STATX_SYNC_AS_STAT STATX_FORCE_SYNC STATX_DONT_SYNC/;
+for my $constant (@stat_constants, @at_constants) {
+	print $fh <<"END";
+	av_push(exports, newSVpvs("$constant"));
+	newCONSTSUB(stash, "$constant", newSVuv($constant));
+
+END
 }
 
 my @constants_maybe = qw/MNT_ID DIOALIGN MNT_ID_UNIQUE SUBVOL WRITE_ATOMIC DIO_READ_ALIGN/;
