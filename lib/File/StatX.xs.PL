@@ -11,10 +11,6 @@ print $fh <<'END';
 #include "perl.h"
 #include "XSUB.h"
 
-#ifndef newSVbool
-#define newSVbool(value) newSVsv(boolSV(value))
-#endif
-
 
 typedef struct statx* File__StatX;
 
@@ -164,7 +160,7 @@ SV* $key(File::StatX self)
 CODE:
 #ifdef STATX_ATTR_\U$key\E
 	if (self->stx_attributes_mask & STATX_ATTR_\U$key\E)
-		RETVAL = newSVbool(self->stx_attributes & STATX_ATTR_\U$key\E);
+		RETVAL = boolSV(self->stx_attributes & STATX_ATTR_\U$key\E);
 	else
 #endif
 		RETVAL = &PL_sv_undef;
